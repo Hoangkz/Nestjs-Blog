@@ -4,8 +4,8 @@ import { User } from './Model/user/Entity/user.entity';
 import { UserModule } from './Model/user/user.module';
 import { ItemsService } from './model/items/items.service';
 import { ItemsModule } from './model/items/items.module';
-import { AuthController } from './compoments/auth/auth/auth.controller';
-import { AuthModule } from './compoments/auth/auth/auth.module';
+import { AuthController } from './compoments/auth/auth.controller';
+import { AuthModule } from './compoments/auth/auth.module';
 
 @Module({
   imports: [
