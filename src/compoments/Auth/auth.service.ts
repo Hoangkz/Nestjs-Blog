@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Query } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/Model/user/Entity/user.entity';
 import { Repository } from 'typeorm';
@@ -22,7 +22,7 @@ export class AuthService {
 
         return hash;
     }
-    async countUsersWithEmail(@Query('email') email: string): Promise<number> {
-        return this.userService.countUsersWithEmail(email);
+    async findByEmail(email: string): Promise<User[]> {
+        return await this.authRepository.find({ where: { email } });
     }
 }

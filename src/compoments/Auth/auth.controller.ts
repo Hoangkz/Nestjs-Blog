@@ -15,12 +15,15 @@ export class AuthController {
             throw new HttpException({ message: errorMessage }, HttpStatus.BAD_REQUEST);
         }
 
-
-
         try {
+        
+            const ListUser = await this.authService.findByEmail(user.email);
+            if(ListUser.length >0){
+                throw new HttpException({ message: "Email already exists!" }, HttpStatus.BAD_REQUEST);
+            }
+
             const hashedPassword = await this.authService.hashPassword(user.password);
             const newUser = { ...user, password: hashedPassword };
-            log(newUser)
             return await this.userService.create(newUser)
         } catch (error) {
             throw new HttpException('Failed to register user.', HttpStatus.INTERNAL_SERVER_ERROR);
