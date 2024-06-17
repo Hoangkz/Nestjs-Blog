@@ -4,6 +4,8 @@ import { User } from './Model/user/Entity/user.entity';
 import { UserModule } from './Model/user/user.module';
 import { ItemsService } from './model/items/items.service';
 import { ItemsModule } from './model/items/items.module';
+import { AuthController } from './compoments/auth/auth/auth.controller';
+import { AuthModule } from './compoments/auth/auth/auth.module';
 
 @Module({
   imports: [
@@ -19,7 +21,9 @@ import { ItemsModule } from './model/items/items.module';
     }),
     UserModule,
     ItemsModule,
+    AuthModule,
   ],
   providers: [ItemsService],
+  controllers: [AuthController],
 })
 export class AppModule { }
