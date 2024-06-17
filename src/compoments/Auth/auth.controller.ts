@@ -1,19 +1,32 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, HttpException, HttpStatus, Post, Res } from '@nestjs/common';
 import { User } from 'src/Model/user/Entity/user.entity';
+import { AuthService } from './auth.service';
+import { log } from 'console';
 import { UserService } from 'src/Model/user/user.service';
-import * as bcrypt from 'bcrypt';
 
-@Controller('auth')
+@Controller()
 export class AuthController {
-    constructor(private readonly userService: UserService) { }
+    constructor(private readonly userService: UserService, private readonly authService: AuthService) { }
 
-    @Post()
+    @Post("register")
     async register(@Body() user: User): Promise<User> {
         if (user.password.length < 6) {
-            throw new Error('Password must be at least 6 characters long.');
+            const errorMessage = 'Password must be at least 6 characters long.';
+            throw new HttpException({ message: errorMessage }, HttpStatus.BAD_REQUEST);
         }
-        return this.userService.create(user);
+
+
+
+        try {
+            const hashedPassword = await this.authService.hashPassword(user.password);
+            const newUser = { ...user, password: hashedPassword };
+            log(newUser)
+            return await this.userService.create(newUser)
+        } catch (error) {
+            throw new HttpException('Failed to register user.', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
+
 
     async login(email: string, password: string): Promise<boolean> {
         // Logic để xác thực người dùng khi đăng nhập

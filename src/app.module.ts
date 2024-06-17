@@ -1,33 +1,22 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './Model/user/Entity/user.entity';
 import { UserModule } from './Model/user/user.module';
-import { ItemsService } from './model/items/items.service';
 import { ItemsModule } from './model/items/items.module';
-import { AuthController } from './compoments/auth/auth.controller';
 import { AuthModule } from './compoments/auth/auth.module';
-import * as dotenv from 'dotenv';
-import { Item } from './model/items/Entity/Items.entity';
-import { ItemsController } from './model/items/items.controller';
-import { UserController } from './Model/user/user.controller';
+import { dataSourceOptions } from 'db/data-source';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: '',
-      database: 'todolist',
-      entities: [User, Item],
-      synchronize: true,
-    }),
+    TypeOrmModule.forRoot(dataSourceOptions),
     UserModule,
+    ConfigModule.forRoot(),
     ItemsModule,
-    AuthModule,
+    AuthModule
   ],
-  providers: [ItemsService],
-  controllers: [AuthController, ItemsController, UserController],
+  providers: [AppService],
+  controllers: [AppController],
 })
 export class AppModule { }

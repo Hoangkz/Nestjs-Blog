@@ -1,21 +1,28 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/Model/user/Entity/user.entity';
+import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { UserService } from 'src/Model/user/user.service';
 
 @Injectable()
 export class AuthService {
-    constructor(private readonly userService: UserService) { }
+    constructor(
+        @InjectRepository(User)
+        private authRepository: Repository<User>,
+    ) { }
 
-    async register(user: User): Promise<User> {
-        if (user.password.length < 6) {
-            throw new Error('Password must be at least 6 characters long.');
-        }
-
-        const hashedPassword = await bcrypt.hash(user.password, 10);
-        const newUser = { ...user, password: hashedPassword };
-
-        return this.userService.create(newUser);
+    create(user: User): Promise<User> {
+        return this.authRepository.save(user);
     }
 
+    async hashPassword(password: string): Promise<string> {
+        const saltRound = process.env.BCRYPT_SALT_ROUNDS;
+        const salt = await bcrypt.genSalt(+saltRound);
+        const hash = await bcrypt.hash(password, salt);
+
+        return hash;
+    }
+    async countUsersWithEmail(@Query('email') email: string): Promise<number> {
+        return this.userService.countUsersWithEmail(email);
+    }
 }
