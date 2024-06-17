@@ -6,6 +6,10 @@ import { ItemsService } from './model/items/items.service';
 import { ItemsModule } from './model/items/items.module';
 import { AuthController } from './compoments/auth/auth.controller';
 import { AuthModule } from './compoments/auth/auth.module';
+import * as dotenv from 'dotenv';
+import { Item } from './model/items/Entity/Items.entity';
+import { ItemsController } from './model/items/items.controller';
+import { UserController } from './Model/user/user.controller';
 
 @Module({
   imports: [
@@ -16,7 +20,7 @@ import { AuthModule } from './compoments/auth/auth.module';
       username: 'root',
       password: '',
       database: 'todolist',
-      entities: [User],
+      entities: [User, Item],
       synchronize: true,
     }),
     UserModule,
@@ -24,6 +28,6 @@ import { AuthModule } from './compoments/auth/auth.module';
     AuthModule,
   ],
   providers: [ItemsService],
-  controllers: [AuthController],
+  controllers: [AuthController, ItemsController, UserController],
 })
 export class AppModule { }
