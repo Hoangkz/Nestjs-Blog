@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './Model/user/Entity/user.entity';
 import { UserModule } from './Model/user/user.module';
-import { ItemsModule } from './items/items.module';
 import { ItemsService } from './model/items/items.service';
 import { ItemsModule } from './model/items/items.module';
 
