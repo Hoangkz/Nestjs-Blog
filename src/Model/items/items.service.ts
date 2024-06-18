@@ -22,8 +22,23 @@ export class ItemsService {
           skip: offset,
           take: pageSize,
         });
-      }
-
+    }
+    async getItemByCategory(idcategory:number,page: number): Promise<Item[]> {
+        const pageSize = 6; 
+        if (page < 1||!page) {
+            page = 1
+        }
+    
+        const offset = (page - 1) * pageSize;
+    
+        return await this.itemsRepository.find({
+            where: { category: { id:  idcategory} },
+            relations: ['category'],
+            skip: offset,
+            take: pageSize,
+          });
+    }
+    
     async search(query: string, page: number): Promise<Item[]> {
         const pageSize = 6;
         if (page < 1||!page) {

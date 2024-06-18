@@ -10,8 +10,18 @@ export class UserService {
         private usersRepository: Repository<User>,
     ) { }
 
-    findAll(): Promise<User[]> {
-        return this.usersRepository.find();
+    async findAll(page:number): Promise<User[]> {
+        const pageSize = 6; // Define your page size here
+        if (page < 1||!page) {
+            page = 1
+        }
+    
+        const offset = (page - 1) * pageSize;
+    
+        return await this.usersRepository.find({
+          skip: offset,
+          take: pageSize,
+        });
     }
 
     findOne(id: number): Promise<User> {
@@ -32,7 +42,8 @@ export class UserService {
     }
     async search(query: string): Promise<User[]> {
         return this.usersRepository.createQueryBuilder('user')
-            .where('user.username LIKE :query', { query: `%${query}%` })
+            .where('user.firstname LIKE :query', { query: `%${query}%` })
+            .orWhere('user.lastname LIKE :query', { query: `%${query}%` })
             .orWhere('user.email LIKE :query', { query: `%${query}%` })
             .getMany();
     }

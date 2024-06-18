@@ -20,14 +20,19 @@ export class CategoriesService {
         else if(!page){
             return this.categoryRepository.find();
         }
-    
         const offset = (page - 1) * pageSize;
+
         return this.categoryRepository.find({
             skip: offset,
             take: pageSize
         });
     }
-    async createCategory(@Body() category: Category): Promise<Category> {
+
+    async findCategoryById(id: number): Promise<Category> {
+        return this.categoryRepository.findOneBy({ id });
+    }
+
+    async createCategory(category: Category): Promise<Category> {
         try {
             return await this.categoryRepository.save(category);
 
@@ -38,5 +43,8 @@ export class CategoriesService {
     async updateCategory(id: number, updateCategory: UpdateCategory): Promise<Category> {
         await this.categoryRepository.update(id, updateCategory);
         return this.categoryRepository.findOneBy({ id });
+    }
+    async deleteCategory(id: number): Promise<void> {
+        await this.categoryRepository.delete(id);
     }
 }
