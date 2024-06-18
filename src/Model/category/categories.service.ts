@@ -12,8 +12,20 @@ export class CategoriesService {
         private categoryRepository: Repository<Category>,
     ) { }
 
-    findAll(): Promise<Category[]> {
-        return this.categoryRepository.find();
+    findAll(page:number): Promise<Category[]> {
+        const pageSize = 6; 
+        if (page < 1) {
+            page = 1
+        }
+        else if(!page){
+            return this.categoryRepository.find();
+        }
+    
+        const offset = (page - 1) * pageSize;
+        return this.categoryRepository.find({
+            skip: offset,
+            take: pageSize
+        });
     }
     async createCategory(@Body() category: Category): Promise<Category> {
         try {

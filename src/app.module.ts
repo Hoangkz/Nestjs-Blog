@@ -8,6 +8,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { CategoriesModule } from './Model/category/categories.module';
+import { Item } from './model/items/Entity/Items.entity';
+import { User } from './Model/user/Entity/user.entity';
+import { Category } from './Model/category/Entity/Category.entity';
 
 
 @Module({
@@ -17,7 +20,8 @@ import { CategoriesModule } from './Model/category/categories.module';
     ConfigModule.forRoot(),
     CategoriesModule,
     ItemsModule,
-    AuthModule
+    AuthModule,
+    TypeOrmModule.forFeature([Item,User,Category]),
   ],
   providers: [AppService],
   controllers: [AppController],

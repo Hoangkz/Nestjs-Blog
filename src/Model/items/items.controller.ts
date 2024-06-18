@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Post, Get, Req, UploadedFile, UseInterceptors, Param, Put, Delete } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Post, Get, Req, UploadedFile, UseInterceptors, Param, Put, Delete, Query } from '@nestjs/common';
 import { ItemsService } from './items.service';
 import { Item } from './Entity/Items.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -10,9 +10,13 @@ import { UpdateItem } from './dto/update-item.dto';
 export class ItemsController {
     constructor(private readonly itemsService: ItemsService) { }
 
+    @Get('search')
+    search(@Query('q') query: string,@Query('page') page: number): Promise<Item[]> {
+        return this.itemsService.search(query,page);
+    }
     @Get()
-    findAll(): Promise<Item[]> {
-        return this.itemsService.findAll();
+    findAll(@Query('page') page: number): Promise<Item[]> {
+        return this.itemsService.findAll(page);
     }
 
     @Get(':id')
@@ -29,6 +33,7 @@ export class ItemsController {
     remove(@Param('id') id: string): Promise<void> {
         return this.itemsService.remove(+id);
     }
+    
     @Put(':id')
     @UseInterceptors(FileInterceptor('image', {
         storage: storageConfig('Item'),
@@ -49,6 +54,7 @@ export class ItemsController {
             }
         }
     }))
+
     update(@Param('id') id: string, @Req() req: any, @Body() updateItemDto: UpdateItem, @UploadedFile() file: Express.Multer.File) {
         if (req.fileValidationError) {
             throw new BadRequestException(req.fileValidationError)
