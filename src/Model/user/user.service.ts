@@ -35,4 +35,8 @@ export class UserService {
             .orWhere('user.email LIKE :query', { query: `%${query}%` })
             .getMany();
     }
+
+    async findByEmail(email: string): Promise<User | undefined> {
+        return await this.usersRepository.findOne({ where: { email } });
+    }
 }

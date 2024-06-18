@@ -11,7 +11,7 @@ export class User {
     @Column({ length: 20, nullable: false })
     lastname: string;
 
-    @Column({ length: 255, nullable: false })
+    @Column({ nullable: false })
     password: string;
 
     @Column({ length: 255, nullable: false, unique: true })
@@ -21,4 +21,8 @@ export class User {
 
     @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
     updatedAt: Date;
+    @Column()
+    accesstoken: string;
+    @Column()
+    refreshtoken: string;
 }
