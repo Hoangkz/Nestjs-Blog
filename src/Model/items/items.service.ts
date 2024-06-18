@@ -2,8 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Item } from './Entity/Items.entity';
-import { UpdateItem } from './dto/update-post.dto';
-
+import { UpdateItem } from './dto/update-item.dto';
 @Injectable()
 export class ItemsService {
     constructor(

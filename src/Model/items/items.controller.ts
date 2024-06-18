@@ -4,7 +4,7 @@ import { Item } from './Entity/Items.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { storageConfig } from 'helpers/config';
 import { extname } from 'path';
-import { UpdateItem } from './dto/update-post.dto';
+import { UpdateItem } from './dto/update-item.dto';
 
 @Controller('item')
 export class ItemsController {
