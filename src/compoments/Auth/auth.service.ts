@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/Model/user/user.service';
+import { LoginUserDto } from './dto/login-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -17,18 +18,17 @@ export class AuthService {
     ) { }
 
     async register(user: User): Promise<User> {
-
         if (user.password.length < 6) {
             const errorMessage = 'Password must be at least 6 characters long.';
             throw new HttpException({ message: errorMessage }, HttpStatus.BAD_REQUEST);
         }
 
-        try {
 
-            const ListUser = await this.usersService.findByEmail(user.email);
-            if (!ListUser) {
-                throw new HttpException({ message: "Email already exists!" }, HttpStatus.BAD_REQUEST);
-            }
+        const checkUser = await this.usersService.findByEmail(user.email);
+        if (checkUser) {
+            throw new HttpException({ message: "Email or password already exists!" }, HttpStatus.BAD_REQUEST);
+        }
+        try {
 
             const hashedPassword = await this.hashPassword(user.password);
             const newUser = { ...user, password: hashedPassword };
@@ -36,7 +36,6 @@ export class AuthService {
         } catch (error) {
             throw new HttpException('Failed to register user.', HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return null
     }
 
     async hashPassword(password: string): Promise<string> {
@@ -47,11 +46,16 @@ export class AuthService {
         return hash;
     }
 
-    async signIn(email: string, pass: string): Promise<any> {
+    async signIn(loginUserDto: LoginUserDto): Promise<any> {
         const user = await this.usersRepository.findOne({
-            where: { email: email }
+            where: { email: loginUserDto.email }
         });
-        if (!user || !bcrypt.compareSync(user.password, pass)) {
+
+        if (!user) {
+            throw new HttpException({ message: "Email or password is incorrect!" }, HttpStatus.BAD_REQUEST);
+        }
+        const checkPass = await bcrypt.compare(loginUserDto.password, user.password)
+        if (!user.password || !checkPass) {
             throw new HttpException({ message: "Email or password is incorrect!" }, HttpStatus.BAD_REQUEST);
         }
         const payload = { id: user.id, email: user.email, lastname: user.lastname, firstname: user.firstname };
@@ -71,7 +75,6 @@ export class AuthService {
         )
 
         return { accesstoken, refreshtoken };
-        return null
     }
     async refreshToken(refreshtoken: string): Promise<any> {
         try {

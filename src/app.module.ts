@@ -7,6 +7,7 @@ import { dataSourceOptions } from 'db/data-source';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
+import { CategoriesModule } from './Model/category/categories.module';
 
 
 @Module({
@@ -14,6 +15,7 @@ import { ConfigModule } from '@nestjs/config';
     TypeOrmModule.forRoot(dataSourceOptions),
     UserModule,
     ConfigModule.forRoot(),
+    CategoriesModule,
     ItemsModule,
     AuthModule
   ],

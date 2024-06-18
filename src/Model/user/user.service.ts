@@ -22,7 +22,8 @@ export class UserService {
         await this.usersRepository.delete(id);
     }
 
-    async create(user: User): Promise<User> {
+    async create(userData: User): Promise<User> {
+        const user = this.usersRepository.create(userData);
         return await this.usersRepository.save(user);
     }
     async update(id: number, user: Partial<User>): Promise<User> {
@@ -37,6 +38,8 @@ export class UserService {
     }
 
     async findByEmail(email: string): Promise<User | undefined> {
-        return await this.usersRepository.findOne({ where: { email } });
+        const user = await this.usersRepository.findOneOrFail({ where: { email } });
+        return user;
     }
+
 }

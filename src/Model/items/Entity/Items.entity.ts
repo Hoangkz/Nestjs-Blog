@@ -1,11 +1,12 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Category } from 'src/Model/category/Entity/Category.entity';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm';
 
 @Entity()
 export class Item {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ length: 255, nullable: false })
+    @Column({ length: 100, nullable: false })
     name: string;
 
     @Column()
@@ -16,4 +17,9 @@ export class Item {
 
     @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
     updatedAt: Date;
+    @Column('text')
+    description: string;
+
+    @ManyToOne(() => Category, category => category.items)
+    category: Category;
 }
