@@ -22,9 +22,10 @@ export class ItemsService {
         const listItems = await this.itemsRepository.find({
             skip: offset,
             take: pageSize,
+            relations: ['category']
         });
         return {
-            data: listItems,
+            items: listItems,
             pagination: {
                 totalItems: totalItems,
                 pageLength: totalPages,
