@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Req, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Query, Req, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { Category } from './Entity/Category.entity';
 import { UpdateCategory } from './dto/update-category.dto';
@@ -23,12 +23,12 @@ export class CategoriesController {
         return this.categoriesService.deleteCategory(id);
     }
     @Post()
-    create(category:Category): Promise<Category> {
+    create(category: Category): Promise<Category> {
         return this.categoriesService.createCategory(category);
     }
     @Put(':id')
-    update(@Param('id') id: number, category:Category): Promise<Category> {
-        return this.categoriesService.updateCategory(id,category);
+    update(@Param('id') id: number, category: UpdateCategory): Promise<Category> {
+        return this.categoriesService.updateCategory(id, category);
     }
     @Post()
     CreateCategory(@Body() categories: Category): Promise<Category> {

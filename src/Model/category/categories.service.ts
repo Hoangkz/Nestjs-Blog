@@ -12,12 +12,12 @@ export class CategoriesService {
         private categoryRepository: Repository<Category>,
     ) { }
 
-    findAll(page:number): Promise<Category[]> {
-        const pageSize = 6; 
+    findAll(page: number): Promise<Category[]> {
+        const pageSize = 6;
         if (page < 1) {
             page = 1
         }
-        else if(!page){
+        else if (!page) {
             return this.categoryRepository.find();
         }
         const offset = (page - 1) * pageSize;
@@ -48,7 +48,5 @@ export class CategoriesService {
     async deleteCategory(id: number): Promise<void> {
         await this.categoryRepository.delete(id);
     }
-    async findCategoryById(id: number): Promise<Category> {
-        return await this.categoryRepository.findOneBy({ id });
-    }
+
 }
