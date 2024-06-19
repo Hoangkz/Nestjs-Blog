@@ -8,14 +8,14 @@ export class UserController {
 
     @Get('search')
     search(@Query('q') query: string): Promise<User[]> {
-        console.log(query);
 
         return this.userService.search(query);
     }
 
     @Get()
-    findAll(): Promise<User[]> {
-        return this.userService.findAll();
+    findAll(@Query('page') page: number): Promise<User[]> {
+        
+        return this.userService.findAll(page);
     }
 
     @Get(':id')
