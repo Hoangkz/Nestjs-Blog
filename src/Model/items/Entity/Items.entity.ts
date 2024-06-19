@@ -10,7 +10,7 @@ export class Item {
     name: string;
 
     @Column()
-    image: string;
+    imageitem: string;
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date;

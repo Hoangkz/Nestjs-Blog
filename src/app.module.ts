@@ -9,7 +9,6 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { CategoriesModule } from './Model/category/categories.module';
 
-
 @Module({
   imports: [
     TypeOrmModule.forRoot(dataSourceOptions),

@@ -30,7 +30,7 @@ export class ItemsController {
         return this.itemsService.remove(+id);
     }
     @Put(':id')
-    @UseInterceptors(FileInterceptor('image', {
+    @UseInterceptors(FileInterceptor('imageitem', {
         storage: storageConfig('Item'),
         fileFilter: (req, file, cb) => {
             const ext = extname(file.originalname);
@@ -49,7 +49,7 @@ export class ItemsController {
             }
         }
     }))
-    update(@Param('id') id: string, @Req() req: any, @Body() updateItemDto: UpdateItem, @UploadedFile() file: Express.Multer.File) {
+    async update(@Param('id') id: string, @Req() req: any, @Body() updateItemDto: UpdateItem, @UploadedFile() file: Express.Multer.File) {
         if (req.fileValidationError) {
             throw new BadRequestException(req.fileValidationError)
         }

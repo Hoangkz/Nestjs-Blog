@@ -16,6 +16,10 @@ export class AuthController {
     async login(@Body() loginUserDto: LoginUserDto): Promise<any> {
         return this.authService.signIn(loginUserDto);
     }
+    @Post('logout')
+    async logout(): Promise<any> {
+        return this.authService.logout();
+    }
     @Post('refresh-token')
     refreshToken(@Body() { refreshtoken }): Promise<any> {
         console.log('refresh token api')

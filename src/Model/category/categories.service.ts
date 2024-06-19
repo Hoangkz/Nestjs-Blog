@@ -12,8 +12,8 @@ export class CategoriesService {
         private categoryRepository: Repository<Category>,
     ) { }
 
-    findAll(): Promise<Category[]> {
-        return this.categoryRepository.find();
+    async findAll(): Promise<Category[]> {
+        return await this.categoryRepository.find();
     }
     async createCategory(@Body() category: Category): Promise<Category> {
         try {
@@ -26,5 +26,11 @@ export class CategoriesService {
     async updateCategory(id: number, updateCategory: UpdateCategory): Promise<Category> {
         await this.categoryRepository.update(id, updateCategory);
         return this.categoryRepository.findOneBy({ id });
+    }
+    async deleteCategory(id: number): Promise<void> {
+        await this.categoryRepository.delete(id);
+    }
+    async findCategoryById(id: number): Promise<Category> {
+        return await this.categoryRepository.findOneBy({ id });
     }
 }
