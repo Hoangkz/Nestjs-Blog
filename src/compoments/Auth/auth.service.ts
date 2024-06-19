@@ -61,10 +61,10 @@ export class AuthService {
         if (!user.password || !checkPass) {
             throw new HttpException({ message: "Email or password is incorrect!" }, HttpStatus.BAD_REQUEST);
         }
+        const { password, accesstoken, refreshtoken, ...userrest } = user
+        const payload = { id: user.id, email: user.email, lastname: user.lastname, firstname: user.firstname, role: user.role };
 
-        const payload = { id: user.id, email: user.email, lastname: user.lastname, firstname: user.firstname };
-
-        return this.generateToken(payload)
+        return this.generateToken(userrest)
     }
 
     private async generateToken(payload: { id: number, email: string, lastname: string, firstname: string }) {

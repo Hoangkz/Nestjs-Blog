@@ -11,6 +11,7 @@ import { CategoriesModule } from './Model/category/categories.module';
 import { Item } from './model/items/Entity/Items.entity';
 import { User } from './Model/user/Entity/user.entity';
 import { Category } from './Model/category/Entity/Category.entity';
+console.log(__dirname)
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { Category } from './Model/category/Entity/Category.entity';
     CategoriesModule,
     ItemsModule,
     AuthModule,
-    TypeOrmModule.forFeature([Item,User,Category]),
+    TypeOrmModule.forFeature([Item, User, Category]),
   ],
   providers: [AppService],
   controllers: [AppController],

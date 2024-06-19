@@ -5,9 +5,11 @@ export class LoginUserDto {
     @ApiProperty()
     @IsNotEmpty()
     @IsEmail()
-    email:string;
+    email: string;
 
     @ApiProperty()
     @IsNotEmpty()
-    password:string;
+    password: string;
+
+    role: number
 }

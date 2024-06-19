@@ -11,7 +11,8 @@ export class Item {
 
     @Column()
     imageitem: string;
-
+    @Column()
+    quatity: number;
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
     createdAt: Date;
 

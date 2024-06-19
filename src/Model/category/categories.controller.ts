@@ -3,8 +3,8 @@ import { CategoriesService } from './categories.service';
 import { Category } from './Entity/Category.entity';
 import { UpdateCategory } from './dto/update-category.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { storageConfig } from 'helpers/config';
 import { extname } from 'path';
+import { storageConfig } from 'helpers/config';
 
 @Controller('category')
 export class CategoriesController {
@@ -23,6 +23,25 @@ export class CategoriesController {
         return this.categoriesService.deleteCategory(id);
     }
     @Post()
+    @UseInterceptors(FileInterceptor('imageCategory', {
+        storage: storageConfig('category'),
+        fileFilter: (req, file, cb) => {
+            const ext = extname(file.originalname);
+            const allowedExtArr = ['.jpg', '.png', '.jpeg'];
+            if (!allowedExtArr.includes(ext)) {
+                req.fileValidationError = `Wrong extension type. Accepted file ext are: ${allowedExtArr.toString()}`;
+                cb(null, false);
+            } else {
+                const fileSize = parseInt(req.headers['content-length']);
+                if (fileSize > 1024 * 1024 * 5) {
+                    req.fileValidationError = 'File size is too large. Accepted file size is less than 5 MB';
+                    cb(null, false);
+                } else {
+                    cb(null, true);
+                }
+            }
+        }
+    }))
     create(category: Category): Promise<Category> {
         return this.categoriesService.createCategory(category);
     }
@@ -36,7 +55,7 @@ export class CategoriesController {
     }
     @Put(':id')
     @UseInterceptors(FileInterceptor('imageCategory', {
-        storage: storageConfig('Category'),
+        storage: storageConfig('category'),
         fileFilter: (req, file, cb) => {
             const ext = extname(file.originalname);
             const allowedExtArr = ['.jpg', '.png', '.jpeg'];

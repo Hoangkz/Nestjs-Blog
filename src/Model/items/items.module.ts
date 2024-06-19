@@ -4,11 +4,12 @@ import { Item } from './Entity/Items.entity';
 import { ItemsService } from './items.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Item]),
-    ConfigModule
+    ConfigModule,
   ],
   providers: [ItemsService],
   controllers: [ItemsController]

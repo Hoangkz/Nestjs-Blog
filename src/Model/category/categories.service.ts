@@ -12,20 +12,29 @@ export class CategoriesService {
         private categoryRepository: Repository<Category>,
     ) { }
 
-    findAll(page: number): Promise<Category[]> {
+    async findAll(page: number): Promise<Category[]> {
         const pageSize = 6;
+        let category: Category[];
         if (page < 1) {
             page = 1
         }
         else if (!page) {
-            return this.categoryRepository.find();
+            category = await this.categoryRepository.find();
         }
-        const offset = (page - 1) * pageSize;
+        else {
+            const offset = (page - 1) * pageSize;
 
-        return this.categoryRepository.find({
-            skip: offset,
-            take: pageSize
-        });
+            category = await this.categoryRepository.find({
+                skip: offset,
+                take: pageSize
+            });
+        }
+
+        category = category.map(item => ({
+            ...item,
+            image: `${item.thumbnail}`,
+        }));
+        return category
     }
 
     async findCategoryById(id: number): Promise<Category> {

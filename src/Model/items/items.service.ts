@@ -10,55 +10,68 @@ export class ItemsService {
         private readonly itemsRepository: Repository<Item>,
     ) { }
 
-    async findAll(page: number): Promise<Item[]> {
-        const pageSize = 6; // Define your page size here
-        if (page < 1||!page) {
+    async findAll(page: number): Promise<any> {
+        const pageSize = 10;
+        if (page < 1 || !page) {
             page = 1
         }
-    
+
         const offset = (page - 1) * pageSize;
-    
-        return await this.itemsRepository.find({
-          skip: offset,
-          take: pageSize,
+        const totalItems = await this.itemsRepository.count();
+        const totalPages = Math.ceil(totalItems / pageSize);
+        const listItems = await this.itemsRepository.find({
+            skip: offset,
+            take: pageSize,
         });
+        return {
+            data: listItems,
+            pagination: {
+                totalItems: totalItems,
+                pageLength: totalPages,
+                currentPage: page,
+                pageSize: pageSize,
+            }
+        };
     }
-    async getItemByCategory(idcategory:number,page: number): Promise<Item[]> {
-        const pageSize = 6; 
-        if (page < 1||!page) {
+    async getItemByCategory(idcategory: number, page: number): Promise<Item[]> {
+        const pageSize = 6;
+        if (page < 1 || !page) {
             page = 1
         }
-    
+
         const offset = (page - 1) * pageSize;
-    
+
         return await this.itemsRepository.find({
-            where: { category: { id:  idcategory} },
+            where: { category: { id: idcategory } },
             relations: ['category'],
             skip: offset,
             take: pageSize,
-          });
+        });
     }
-    
+
     async search(query: string, page: number): Promise<Item[]> {
-        const pageSize = 6;
-        if (page < 1||!page) {
+        const pageSize = 8;
+        if (page < 1 || !page) {
             page = 1
         }
         const offset = (page - 1) * pageSize;
         return await this.itemsRepository.createQueryBuilder('item')
-          .where('item.name LIKE :query', { query: `%${query}%` })
-          .orWhere('item.description LIKE :query', { query: `%${query}%` })
-          .skip(offset)
-          .take(pageSize)
-          .getMany();
-      }
+            .where('item.name LIKE :query', { query: `%${query}%` })
+            .orWhere('item.description LIKE :query', { query: `%${query}%` })
+            .skip(offset)
+            .take(pageSize)
+            .getMany();
+    }
 
     async findById(id: number): Promise<Item> {
         return await this.itemsRepository.findOneBy({ id });
     }
 
-    async create(item: Item): Promise<Item> {
-        return await this.itemsRepository.save(item);
+    async create(item: Item): Promise<any> {
+        await this.itemsRepository.save(item);
+        return {
+            message: `Created ${item.name} item success!`
+        }
     }
 
     async update(id: number, updateItemDto: UpdateItem): Promise<Item> {

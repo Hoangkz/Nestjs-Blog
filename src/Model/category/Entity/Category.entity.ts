@@ -9,7 +9,8 @@ export class Category {
 
     @Column({ length: 100, unique: true })
     name: string;
-
+    @Column({ length: 255, nullable: true })
+    thumbnail: string;
     @OneToMany(() => Item, item => item.category)
     items: Item[];
 

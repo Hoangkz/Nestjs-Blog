@@ -5,22 +5,23 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { storageConfig } from 'helpers/config';
 import { extname } from 'path';
 import { UpdateItem } from './dto/update-item.dto';
-import { get } from 'http';
+import { diskStorage } from 'multer';
 
 @Controller('item')
 export class ItemsController {
     constructor(private readonly itemsService: ItemsService) { }
 
     @Get('search')
-    search(@Query('q') query: string,@Query('page') page: number): Promise<Item[]> {
-        return this.itemsService.search(query,page);
+    search(@Query('q') query: string, @Query('page') page: number): Promise<Item[]> {
+
+        return this.itemsService.search(query, page);
     }
     @Get("category")
-    GetItemByCategory(@Param('id') id: number,@Query('page') page: number): Promise<Item[]>{
-        return this.itemsService.getItemByCategory(id,page);
+    GetItemByCategory(@Param('id') id: number, @Query('page') page: number): Promise<Item[]> {
+        return this.itemsService.getItemByCategory(id, page);
     }
     @Get()
-    findAll(@Query('page') page: number): Promise<Item[]> {
+    findAll(@Query('page') page: number): Promise<any> {
         return this.itemsService.findAll(page);
     }
 
@@ -30,7 +31,15 @@ export class ItemsController {
     }
 
     @Post()
-    create(@Body() item: Item): Promise<Item> {
+    @UseInterceptors(FileInterceptor('imageitem', storageConfig("Items")))
+    async create(@UploadedFile() file: Express.Multer.File, @Body() item: Item): Promise<any> {
+        console.log(file)
+        if (file) {
+            item = {
+                ...item,
+                imageitem: file.path
+            }
+        }
         return this.itemsService.create(item);
     }
 
@@ -40,25 +49,8 @@ export class ItemsController {
     }
 
     @Put(':id')
-    @UseInterceptors(FileInterceptor('imageitem', {
-        storage: storageConfig('Item'),
-        fileFilter: (req, file, cb) => {
-            const ext = extname(file.originalname);
-            const allowedExtArr = ['.jpg', '.png', '.jpeg'];
-            if (!allowedExtArr.includes(ext)) {
-                req.fileValidationError = `Wrong extension type. Accepted file ext are: ${allowedExtArr.toString()}`;
-                cb(null, false);
-            } else {
-                const fileSize = parseInt(req.headers['content-length']);
-                if (fileSize > 1024 * 1024 * 5) {
-                    req.fileValidationError = 'File size is too large. Accepted file size is less than 5 MB';
-                    cb(null, false);
-                } else {
-                    cb(null, true);
-                }
-            }
-        }
-    }))
+    @UseInterceptors(FileInterceptor('imageitem', storageConfig("Items")))
+
     async update(@Param('id') id: string, @Req() req: any, @Body() updateItemDto: UpdateItem, @UploadedFile() file: Express.Multer.File) {
         if (req.fileValidationError) {
             throw new BadRequestException(req.fileValidationError)
