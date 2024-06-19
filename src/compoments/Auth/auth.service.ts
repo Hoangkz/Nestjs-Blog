@@ -45,6 +45,9 @@ export class AuthService {
 
         return hash;
     }
+    async logout(): Promise<void> {
+
+    }
 
     async signIn(loginUserDto: LoginUserDto): Promise<any> {
         const user = await this.usersRepository.findOne({
@@ -58,6 +61,7 @@ export class AuthService {
         if (!user.password || !checkPass) {
             throw new HttpException({ message: "Email or password is incorrect!" }, HttpStatus.BAD_REQUEST);
         }
+
         const payload = { id: user.id, email: user.email, lastname: user.lastname, firstname: user.firstname };
 
         return this.generateToken(payload)

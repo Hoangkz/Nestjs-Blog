@@ -30,6 +30,7 @@ export class CategoriesService {
 
     async findCategoryById(id: number): Promise<Category> {
         return this.categoryRepository.findOneBy({ id });
+
     }
 
     async createCategory(category: Category): Promise<Category> {
@@ -46,5 +47,8 @@ export class CategoriesService {
     }
     async deleteCategory(id: number): Promise<void> {
         await this.categoryRepository.delete(id);
+    }
+    async findCategoryById(id: number): Promise<Category> {
+        return await this.categoryRepository.findOneBy({ id });
     }
 }
