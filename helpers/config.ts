@@ -1,9 +1,7 @@
-// storage.config.ts
 
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-
-// Hàm để kiểm tra đuôi file cho phép
+import * as fs from 'fs';
 const fileFilter = (req, file, cb) => {
     const ext = extname(file.originalname).toLowerCase();
     const allowedExtArr = ['.jpg', '.jpeg', '.png'];
@@ -25,3 +23,16 @@ export const storageConfig = (destination: string) => ({
     }),
     fileFilter: fileFilter,
 });
+export const deleteFile = (fileName: string) => {
+    try {
+        if (fs.existsSync(fileName)) {
+            fs.unlinkSync(fileName);
+            console.log(`Deleted file: ${fileName}`);
+        } else {
+            console.log(`File not found: ${fileName}`);
+        }
+    } catch (err) {
+        console.error(`Error deleting file: ${fileName}`, err);
+        throw new Error(`Error deleting file: ${fileName}`);
+    }
+}

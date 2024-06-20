@@ -1,19 +1,26 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Query, Req, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req, UploadedFile, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { Category } from './Entity/Category.entity';
-import { UpdateCategory } from './dto/update-category.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { extname } from 'path';
 import { storageConfig } from 'helpers/config';
 
 @Controller('category')
 export class CategoriesController {
     constructor(private readonly categoriesService: CategoriesService) { }
-
+    @Get("admin")
+    adminFindAll(@Query('page') page: number, @Query('search') search: string): Promise<any> {
+        return this.categoriesService.AdminFindAll(page, search);
+    }
+    @Delete("many")
+    @UsePipes(new ValidationPipe({ transform: true }))
+    DeleteMany(@Body() deleteManyDto: any): Promise<void> {
+        return this.categoriesService.deletemany(deleteManyDto.data.listid);
+    }
     @Get()
     findAll(@Query('page') page: number): Promise<Category[]> {
         return this.categoriesService.findAll(page);
     }
+
     @Get(":id")
     findCategoryById(@Param("id") id: number): Promise<Category> {
         return this.categoriesService.findCategoryById(id);
@@ -22,67 +29,49 @@ export class CategoriesController {
     remove(@Param('id') id: number): Promise<void> {
         return this.categoriesService.deleteCategory(id);
     }
+
+
     @Post()
-    @UseInterceptors(FileInterceptor('imageCategory', {
-        storage: storageConfig('category'),
-        fileFilter: (req, file, cb) => {
-            const ext = extname(file.originalname);
-            const allowedExtArr = ['.jpg', '.png', '.jpeg'];
-            if (!allowedExtArr.includes(ext)) {
-                req.fileValidationError = `Wrong extension type. Accepted file ext are: ${allowedExtArr.toString()}`;
-                cb(null, false);
-            } else {
-                const fileSize = parseInt(req.headers['content-length']);
-                if (fileSize > 1024 * 1024 * 5) {
-                    req.fileValidationError = 'File size is too large. Accepted file size is less than 5 MB';
-                    cb(null, false);
-                } else {
-                    cb(null, true);
-                }
+    @UseInterceptors(FileInterceptor('thumbnail', storageConfig("Category")))
+    create(@UploadedFile() file: Express.Multer.File, @Body() category: Category): Promise<Category> {
+        if (file) {
+            category = {
+                ...category,
+                thumbnail: file.path
             }
         }
-    }))
-    create(category: Category): Promise<Category> {
+        else if (file === undefined) {
+            category = {
+                ...category,
+            }
+            delete category.thumbnail;
+        }
+        category = {
+            ...category
+        }
         return this.categoriesService.createCategory(category);
     }
+
+
     @Put(':id')
-    update(@Param('id') id: number, category: UpdateCategory): Promise<Category> {
-        return this.categoriesService.updateCategory(id, category);
-    }
-    @Post()
-    CreateCategory(@Body() categories: Category): Promise<Category> {
-        return this.categoriesService.createCategory(categories);
-    }
-    @Put(':id')
-    @UseInterceptors(FileInterceptor('imageCategory', {
-        storage: storageConfig('category'),
-        fileFilter: (req, file, cb) => {
-            const ext = extname(file.originalname);
-            const allowedExtArr = ['.jpg', '.png', '.jpeg'];
-            if (!allowedExtArr.includes(ext)) {
-                req.fileValidationError = `Wrong extension type. Accepted file ext are: ${allowedExtArr.toString()}`;
-                cb(null, false);
-            } else {
-                const fileSize = parseInt(req.headers['content-length']);
-                if (fileSize > 1024 * 1024 * 5) {
-                    req.fileValidationError = 'File size is too large. Accepted file size is less than 5 MB';
-                    cb(null, false);
-                } else {
-                    cb(null, true);
-                }
+    @UseInterceptors(FileInterceptor('thumbnail', storageConfig("Category")))
+    update(@Param('id') id: number, @Body() category: Category, @UploadedFile() file: Express.Multer.File): Promise<any> {
+        if (file) {
+            category = {
+                ...category,
+                thumbnail: file.path
             }
         }
-    }))
-    async updateCategory(@Param('id') id: string, @Req() req: any, @Body() updateItemDto: UpdateCategory, @UploadedFile() file: Express.Multer.File) {
-        if (req.fileValidationError) {
-            throw new BadRequestException(req.fileValidationError)
+        else if (file === undefined) {
+            category = {
+                ...category,
+            }
+            delete category.thumbnail;
         }
-
-        if (file) {
-            updateItemDto.imageCategory = file.destination + '/' + file.filename;
+        category = {
+            ...category
         }
-
-        return this.categoriesService.updateCategory(Number(id), updateItemDto)
+        return this.categoriesService.updateCategory(id, category);
     }
 
     @Delete(':id')

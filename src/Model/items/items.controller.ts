@@ -1,19 +1,23 @@
-import { BadRequestException, Body, Controller, Post, Get, Req, UploadedFile, UseInterceptors, Param, Put, Delete, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Post, Get, Req, UploadedFile, UseInterceptors, Param, Put, Delete, Query, UsePipes, ValidationPipe, HttpException, HttpStatus } from '@nestjs/common';
 import { ItemsService } from './items.service';
 import { Item } from './Entity/Items.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { storageConfig } from 'helpers/config';
-import { extname } from 'path';
-import { UpdateItem } from './dto/update-item.dto';
-import { diskStorage } from 'multer';
 
 @Controller('item')
 export class ItemsController {
     constructor(private readonly itemsService: ItemsService) { }
 
+    @Delete('many')
+    @UsePipes(new ValidationPipe({ transform: true }))
+    async deleteMany(@Body() deleteManyDto: any): Promise<any> {
+        const listId = deleteManyDto?.data?.listid
+
+        return this.itemsService.deletemany(listId);
+
+    }
     @Get('search')
     search(@Query('q') query: string, @Query('page') page: number): Promise<Item[]> {
-
         return this.itemsService.search(query, page);
     }
     @Get("category")
@@ -21,8 +25,8 @@ export class ItemsController {
         return this.itemsService.getItemByCategory(id, page);
     }
     @Get()
-    findAll(@Query('page') page: number): Promise<any> {
-        return this.itemsService.findAll(page);
+    findAll(@Query('page') page: number, @Query('search') search: string): Promise<any> {
+        return this.itemsService.findAll(page, search);
     }
 
     @Get(':id')
@@ -33,12 +37,20 @@ export class ItemsController {
     @Post()
     @UseInterceptors(FileInterceptor('imageitem', storageConfig("Items")))
     async create(@UploadedFile() file: Express.Multer.File, @Body() item: Item): Promise<any> {
-        console.log(file)
         if (file) {
             item = {
                 ...item,
                 imageitem: file.path
             }
+        }
+        else if (file === undefined) {
+            item = {
+                ...item,
+            }
+            delete item.imageitem;
+        }
+        item = {
+            ...item
         }
         return this.itemsService.create(item);
     }
@@ -50,16 +62,28 @@ export class ItemsController {
 
     @Put(':id')
     @UseInterceptors(FileInterceptor('imageitem', storageConfig("Items")))
-
-    async update(@Param('id') id: string, @Req() req: any, @Body() updateItemDto: UpdateItem, @UploadedFile() file: Express.Multer.File) {
+    async update(@Param('id') id: string, @Req() req: any, @Body() item: Item, @UploadedFile() file: Express.Multer.File) {
         if (req.fileValidationError) {
             throw new BadRequestException(req.fileValidationError)
         }
-
         if (file) {
-            updateItemDto.image = file.destination + '/' + file.filename;
+            item = {
+                ...item,
+                imageitem: file.path
+            }
         }
-
-        return this.itemsService.update(Number(id), updateItemDto)
+        else if (file === undefined) {
+            item = {
+                ...item,
+            }
+            delete item.imageitem;
+        }
+        item = {
+            ...item
+        }
+        await this.itemsService.update(Number(id), item)
+        return {
+            message: "Update " + item.name + " successfully"
+        }
     }
 }

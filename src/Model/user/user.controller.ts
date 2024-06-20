@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Param, Body, Put, Query } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Body, Put, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './Entity/user.entity';
 
@@ -7,14 +7,19 @@ export class UserController {
     constructor(private readonly userService: UserService) { }
 
     @Get('search')
-    search(@Query('q') query: string): Promise<User[]> {
-
-        return this.userService.search(query);
+    search(@Query('page') page: number, @Query('q') query: string): Promise<any> {
+        return this.userService.search(page, query);
     }
+    @Delete('many')
+    @UsePipes(new ValidationPipe({ transform: true }))
+    async deleteMany(@Body() deleteMany: any): Promise<any> {
+        const listId = deleteMany?.data?.listid
+        return this.userService.deletemany(listId);
 
+    }
     @Get()
     findAll(@Query('page') page: number): Promise<User[]> {
-        
+
         return this.userService.findAll(page);
     }
 

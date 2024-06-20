@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './Entity/user.entity';
@@ -9,22 +9,33 @@ export class UserService {
         @InjectRepository(User)
         private usersRepository: Repository<User>,
     ) { }
+    async deletemany(ids: number[]): Promise<any> {
+        if (ids.length <= 0) {
+            throw new HttpException({ messages: 'Delete items error!' }, HttpStatus.BAD_REQUEST);
+        }
 
-    async findAll(page:number): Promise<User[]> {
+        await this.usersRepository.delete(ids);
+
+        return {
+            message: "Delete succesfully"
+        }
+    }
+    async findAll(page: number): Promise<User[]> {
         const pageSize = 6; // Define your page size here
-        if (page < 1||!page) {
+        if (page < 1 || !page) {
             page = 1
         }
-    
+
         const offset = (page - 1) * pageSize;
-    
+
         return await this.usersRepository.find({
-          skip: offset,
-          take: pageSize,
+            skip: offset,
+            take: pageSize,
         });
     }
 
     findOne(id: number): Promise<User> {
+        console.log(id)
         return this.usersRepository.findOneBy({ id });
     }
 
@@ -40,16 +51,44 @@ export class UserService {
         await this.usersRepository.update(id, user);
         return this.usersRepository.findOneBy({ id });
     }
-    async search(query: string): Promise<User[]> {
-        return this.usersRepository.createQueryBuilder('user')
-            .where('user.firstname LIKE :query', { query: `%${query}%` })
-            .orWhere('user.lastname LIKE :query', { query: `%${query}%` })
-            .orWhere('user.email LIKE :query', { query: `%${query}%` })
-            .getMany();
-    }
+    async search(page: number, search: string): Promise<any> {
+        const pageSize = 10;
+        if (page < 1 || !page) {
+            page = 1
+        }
+        let total: number
+        let listUser: {}
+        const offset = (page - 1) * pageSize;
 
+        if (search && search !== undefined) {
+            total = await this.usersRepository.createQueryBuilder('user')
+                .where('user.email LIKE :search OR user.firstname LIKE :search OR user.lastname LIKE :search', { search: `%${search}%` })
+                .getCount();
+            listUser = await this.usersRepository.createQueryBuilder('user')
+                .where('user.email LIKE :search OR user.firstname LIKE :search OR user.lastname LIKE :search', { search: `%${search}%` })
+                .skip(offset)
+                .take(pageSize)
+                .getMany();
+        }
+        else {
+
+            total = (await this.usersRepository.find()).length;
+            listUser = await this.usersRepository.find();
+        }
+        const totalPages = Math.ceil(total / pageSize);
+
+        return {
+            users: listUser,
+            pagination: {
+                total: total,
+                pageLength: totalPages,
+                currentPage: page,
+                pageSize: pageSize,
+            }
+        }
+    }
     async findByEmail(email: string): Promise<User | undefined> {
-        const user = await this.usersRepository.findOneOrFail({ where: { email } });
+        const user = await this.usersRepository.findOne({ where: { email } });
         return user;
     }
 
