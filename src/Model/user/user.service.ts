@@ -35,7 +35,6 @@ export class UserService {
     }
 
     findOne(id: number): Promise<User> {
-        console.log(id)
         return this.usersRepository.findOneBy({ id });
     }
 
@@ -47,9 +46,13 @@ export class UserService {
         const user = this.usersRepository.create(userData);
         return await this.usersRepository.save(user);
     }
-    async update(id: number, user: Partial<User>): Promise<User> {
+    async update(id: number, user: User): Promise<any> {
+
         await this.usersRepository.update(id, user);
-        return this.usersRepository.findOneBy({ id });
+        
+        return {
+            message:`Update ${user.email} successfully`
+        }
     }
     async search(page: number, search: string): Promise<any> {
         const pageSize = 10;

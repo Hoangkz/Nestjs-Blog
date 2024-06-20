@@ -9,9 +9,9 @@ export class Item {
     @Column({ length: 100, nullable: false })
     name: string;
 
-    @Column()
+    @Column({nullable: true})
     imageitem: string;
-    @Column()
+    @Column({nullable: true})
     quatity: number;
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
     createdAt: Date;

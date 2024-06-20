@@ -42,13 +42,11 @@ export class CategoriesService {
         const pageSize = 8;
         let listCategory
         let totalItems
-        console.log(search)
         if (page < 1) {
             page = 1
         }
         const offset = (page - 1) * pageSize;
         if (search && search !== undefined) {
-            console.log("vao day")
             listCategory = await this.categoryRepository.createQueryBuilder('category')
                 .where('category.name LIKE :search', { search: `%${search}%` })
                 .skip(offset)
@@ -86,7 +84,6 @@ export class CategoriesService {
     async createCategory(category: Category): Promise<any> {
 
         try {
-            console.log(category)
             await this.categoryRepository.save(category);
             return {
                 message: `Created ${category.name} item success!`
@@ -107,7 +104,6 @@ export class CategoriesService {
         }
     }
     async deletemany(ids: number[]): Promise<any> {
-        console.log(ids)
         if (ids.length <= 0) {
             throw new HttpException({ messages: 'Delete items error!' }, HttpStatus.BAD_REQUEST);
         }

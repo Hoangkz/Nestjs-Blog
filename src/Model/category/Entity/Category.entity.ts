@@ -7,7 +7,7 @@ export class Category {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ length: 100, unique: true })
+    @Column({ length: 100, nullable: true, unique: true })
     name: string;
     @Column({ length: 255, nullable: true })
     thumbnail: string;

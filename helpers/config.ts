@@ -27,9 +27,7 @@ export const deleteFile = (fileName: string) => {
     try {
         if (fs.existsSync(fileName)) {
             fs.unlinkSync(fileName);
-            console.log(`Deleted file: ${fileName}`);
         } else {
-            console.log(`File not found: ${fileName}`);
         }
     } catch (err) {
         console.error(`Error deleting file: ${fileName}`, err);

@@ -17,8 +17,8 @@ export class AuthService {
 
     ) { }
 
-    async register(user: User): Promise<User> {
-        if (user.password.length < 6) {
+    async register(user: User): Promise<any> {
+        if (user?.password?.length < 6) {
             const errorMessage = 'Password must be at least 6 characters long.';
             throw new HttpException({ message: errorMessage }, HttpStatus.BAD_REQUEST);
         }
@@ -32,7 +32,7 @@ export class AuthService {
 
             const hashedPassword = await this.hashPassword(user.password);
             const newUser = { ...user, password: hashedPassword };
-            return await this.usersService.create(newUser)
+            await this.usersService.create(newUser)
         } catch (error) {
             throw new HttpException('Failed to register user.', HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -61,9 +61,10 @@ export class AuthService {
         if (!user.password || !checkPass) {
             throw new HttpException({ message: "Email or password is incorrect!" }, HttpStatus.BAD_REQUEST);
         }
+        
         const { password, accesstoken, refreshtoken, ...userrest } = user
-        const payload = { id: user.id, email: user.email, lastname: user.lastname, firstname: user.firstname, role: user.role };
-
+        // const payload = { id: user.id, email: user.email, lastname: user.lastname, firstname: user.firstname, role: user.role };
+        
         return this.generateToken(userrest)
     }
 
@@ -94,6 +95,5 @@ export class AuthService {
         } catch (error) {
             throw new HttpException({ messages: 'Refresh token is not valid' }, HttpStatus.BAD_REQUEST);
         }
-        return null
     }
 }

@@ -112,7 +112,6 @@ export class ItemsService {
             throw new HttpException({ messages: 'Delete items error!' }, HttpStatus.BAD_REQUEST);
         }
         const itemsToDelete = await this.itemsRepository.findByIds(ids);
-        console.log(itemsToDelete.length)
         itemsToDelete.forEach(item => {
             deleteFile(item.imageitem);
         });
