@@ -11,6 +11,7 @@ import { CategoriesModule } from './Model/category/categories.module';
 import { Item } from './model/items/Entity/Items.entity';
 import { User } from './Model/user/Entity/user.entity';
 import { Category } from './Model/category/Entity/Category.entity';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -21,6 +22,10 @@ import { Category } from './Model/category/Entity/Category.entity';
     ItemsModule,
     AuthModule,
     TypeOrmModule.forFeature([Item, User, Category]),
+    JwtModule.register({
+      global: true,
+      secret: process.env.SECRET,
+    }),
   ],
   providers: [AppService],
   controllers: [AppController],

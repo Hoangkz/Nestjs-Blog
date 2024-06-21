@@ -2,12 +2,16 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './Entity/user.entity';
+import { JwtService } from '@nestjs/jwt';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectRepository(User)
         private usersRepository: Repository<User>,
+        private jwtService: JwtService,
+        private readonly mailerService: MailerService
     ) { }
     async deletemany(ids: number[]): Promise<any> {
         if (ids.length <= 0) {
@@ -49,13 +53,15 @@ export class UserService {
     async update(id: number, user: User): Promise<any> {
 
         await this.usersRepository.update(id, user);
-        
+        const { password, refreshtoken, accesstoken, ...rest } = await this.findOne(id);
         return {
-            message:`Update ${user.email} successfully`
+            token: await this.generateToken(rest),
+            user: rest,
+            message: `Update ${rest.email} successfully`
         }
     }
     async search(page: number, search: string): Promise<any> {
-        const pageSize = 10;
+        const pageSize = 8;
         if (page < 1 || !page) {
             page = 1
         }
@@ -95,4 +101,30 @@ export class UserService {
         return user;
     }
 
+    async generateToken(user: {}) {
+        const accesstoken = await this.jwtService.signAsync(user, {
+            secret: process.env.SECRET,
+            expiresIn: process.env.EXP_IN_ACCESS_TOKEN
+        });
+        return { accesstoken }
+    }
+    async ForgotPassword(data: any): Promise<any> {
+        const email = data.email
+        const user = await this.findByEmail(email)
+        if (!user) {
+            throw new HttpException({ message: 'Email does not exist!' }, HttpStatus.BAD_REQUEST);
+        }
+        try {
+            await this.sendEmail(email, "password", "test email")
+        } catch (error) {
+            throw new HttpException({ message: "Server error!" }, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    async sendEmail(to: string, subject: string, text: string): Promise<void> {
+        await this.mailerService.sendMail({
+            to,
+            subject,
+            text,
+        });
+    }
 }

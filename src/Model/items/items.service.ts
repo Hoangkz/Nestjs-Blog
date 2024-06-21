@@ -3,16 +3,18 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Item } from './Entity/Items.entity';
 import { deleteFile } from 'helpers/config';
+import { CategoriesService } from '../category/categories.service';
 
 @Injectable()
 export class ItemsService {
     constructor(
         @InjectRepository(Item)
         private readonly itemsRepository: Repository<Item>,
+        private readonly categoryService: CategoriesService
     ) { }
 
-    async findAll(page: number, search: string): Promise<any> {
-        const pageSize = 10;
+    async findAll(page: number, search: string, count: number): Promise<any> {
+        const pageSize = Number(count) < 0 ? 8 : 10;
         if (page < 1 || !page) {
             page = 1
         }
@@ -54,44 +56,86 @@ export class ItemsService {
             }
         };
     }
-    async getItemByCategory(idcategory: number, page: number): Promise<Item[]> {
-        const pageSize = 6;
+    async getItemByCategory(id: number, page: number): Promise<any> {
+        const pageSize = 7;
         if (page < 1 || !page) {
             page = 1
         }
 
         const offset = (page - 1) * pageSize;
-
-        return await this.itemsRepository.find({
-            where: { category: { id: idcategory } },
-            relations: ['category'],
+        const items = await this.itemsRepository.find({
+            where: { category: { id: id } },
             skip: offset,
             take: pageSize,
-        });
+        })
+        const totalItems = await this.itemsRepository.find({
+            where: { category: { id: id } },
+        })
+
+        const category = await this.categoryService.findCategoryById(id)
+        const totalPages = Math.ceil((totalItems?.length || 0) / pageSize);
+        return {
+            items: items,
+            category: category,
+            pagination: {
+                totalItems: totalItems,
+                pageLength: totalPages,
+                currentPage: page,
+                pageSize: pageSize,
+            }
+        }
     }
 
-    async search(query: string, page: number): Promise<Item[]> {
-        const pageSize = 8;
+    async search(query: string, page: number): Promise<any> {
+
+
+        const pageSize = 7;
+
+        if (page == -1) {
+
+            return {
+                items: await this.itemsRepository.createQueryBuilder('item')
+                    .where('item.name LIKE :query', { query: `%${query}%` })
+                    .orWhere('item.description LIKE :query', { query: `%${query}%` })
+                    .getMany()
+            }
+        }
         if (page < 1 || !page) {
             page = 1
         }
-        const offset = (page - 1) * pageSize;
-        return await this.itemsRepository.createQueryBuilder('item')
+        const totalItems = await this.itemsRepository.createQueryBuilder('item')
             .where('item.name LIKE :query', { query: `%${query}%` })
             .orWhere('item.description LIKE :query', { query: `%${query}%` })
-            .skip(offset)
-            .take(pageSize)
-            .getMany();
+            .getCount()
+        const totalPages = Math.ceil((totalItems) / pageSize);
+        const offset = (page - 1) * pageSize;
+        return {
+            items: await this.itemsRepository.createQueryBuilder('item')
+                .where('item.name LIKE :query', { query: `%${query}%` })
+                .orWhere('item.description LIKE :query', { query: `%${query}%` })
+                .skip(offset)
+                .take(pageSize)
+                .getMany(),
+            pagination: {
+                totalItems: totalItems,
+                pageLength: totalPages,
+                currentPage: page,
+                pageSize: pageSize,
+            }
+        }
     }
 
     async findById(id: number): Promise<Item> {
-        return await this.itemsRepository.findOneBy({ id });
+        return await this.itemsRepository.findOne({
+            where: { id },
+            relations: ['category']
+        });
     }
 
     async create(item: Item): Promise<any> {
         await this.itemsRepository.save(item);
         return {
-            message: `Created ${item.name} item success!`
+            message: `Created item ${item.name} success!`
         }
     }
 

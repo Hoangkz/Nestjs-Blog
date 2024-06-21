@@ -17,6 +17,12 @@ export class UserController {
         return this.userService.deletemany(listId);
 
     }
+
+    @Post('forgot-password')
+    @UsePipes(new ValidationPipe({ transform: true }))
+    async forgotPassword(@Body() email: any): Promise<any> {
+        await this.userService.ForgotPassword(email)
+    }
     @Get()
     findAll(@Query('page') page: number): Promise<User[]> {
 
@@ -39,6 +45,7 @@ export class UserController {
 
     @Put(':id')
     update(@Param('id') id: number, @Body() user: User): Promise<any> {
+
         return this.userService.update(id, user);
     }
 

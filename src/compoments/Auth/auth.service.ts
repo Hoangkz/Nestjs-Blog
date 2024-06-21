@@ -13,7 +13,7 @@ export class AuthService {
         @InjectRepository(User)
         private usersRepository: Repository<User>,
         private jwtService: JwtService,
-        private usersService: UserService
+        private usersService: UserService,
 
     ) { }
 
@@ -33,6 +33,9 @@ export class AuthService {
             const hashedPassword = await this.hashPassword(user.password);
             const newUser = { ...user, password: hashedPassword };
             await this.usersService.create(newUser)
+            return {
+                message: "Register successfully"
+            }
         } catch (error) {
             throw new HttpException('Failed to register user.', HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -61,17 +64,18 @@ export class AuthService {
         if (!user.password || !checkPass) {
             throw new HttpException({ message: "Email or password is incorrect!" }, HttpStatus.BAD_REQUEST);
         }
-        
+
         const { password, accesstoken, refreshtoken, ...userrest } = user
         // const payload = { id: user.id, email: user.email, lastname: user.lastname, firstname: user.firstname, role: user.role };
-        
+
         return this.generateToken(userrest)
     }
 
     private async generateToken(payload: { id: number, email: string, lastname: string, firstname: string }) {
-        const accesstoken = await this.jwtService.signAsync(payload);
+        const accesstoken = await this.jwtService.signAsync(payload, {
+            expiresIn: process.env.EXP_IN_ACCESS_TOKEN
+        });
         const refreshtoken = await this.jwtService.signAsync(payload, {
-            secret: process.env.SECRET,
             expiresIn: process.env.EXP_IN_REFRESH_TOKEN
         })
         await this.usersRepository.update(
@@ -79,8 +83,11 @@ export class AuthService {
             { refreshtoken: refreshtoken }
         )
 
-        return { accesstoken, refreshtoken };
+        return { accesstoken };
     }
+
+
+
     async refreshToken(refreshtoken: string): Promise<any> {
         try {
             const verify = await this.jwtService.verifyAsync(refreshtoken, {
@@ -96,4 +103,5 @@ export class AuthService {
             throw new HttpException({ messages: 'Refresh token is not valid' }, HttpStatus.BAD_REQUEST);
         }
     }
+
 }

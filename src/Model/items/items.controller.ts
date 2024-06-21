@@ -6,7 +6,9 @@ import { storageConfig } from 'helpers/config';
 
 @Controller('item')
 export class ItemsController {
-    constructor(private readonly itemsService: ItemsService) { }
+    constructor(
+        private readonly itemsService: ItemsService,
+    ) { }
 
     @Delete('many')
     @UsePipes(new ValidationPipe({ transform: true }))
@@ -17,16 +19,16 @@ export class ItemsController {
 
     }
     @Get('search')
-    search(@Query('q') query: string, @Query('page') page: number): Promise<Item[]> {
+    search(@Query('q') query: string, @Query('page') page: number): Promise<any> {
         return this.itemsService.search(query, page);
     }
     @Get("category")
-    GetItemByCategory(@Param('id') id: number, @Query('page') page: number): Promise<Item[]> {
+    async GetItemByCategory(@Query('id') id: number, @Query('page') page: number): Promise<any> {
         return this.itemsService.getItemByCategory(id, page);
     }
     @Get()
-    findAll(@Query('page') page: number, @Query('search') search: string): Promise<any> {
-        return this.itemsService.findAll(page, search);
+    findAll(@Query('page') page: number, @Query('search') search: string, @Query('count') count: number): Promise<any> {
+        return this.itemsService.findAll(page, search, count);
     }
 
     @Get(':id')
