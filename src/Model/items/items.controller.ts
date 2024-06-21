@@ -1,8 +1,9 @@
-import { BadRequestException, Body, Controller, Post, Get, Req, UploadedFile, UseInterceptors, Param, Put, Delete, Query, UsePipes, ValidationPipe, HttpException, HttpStatus } from '@nestjs/common';
+import { MiddlewareConsumer, BadRequestException, Body, Controller, Post, Get, Req, UploadedFile, UseInterceptors, Param, Put, Delete, Query, UsePipes, ValidationPipe, } from '@nestjs/common';
 import { ItemsService } from './items.service';
 import { Item } from './Entity/Items.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { storageConfig } from 'helpers/config';
+import { ExtractTokenMiddleware } from 'src/logger/logger.middleware';
 
 @Controller('item')
 export class ItemsController {
