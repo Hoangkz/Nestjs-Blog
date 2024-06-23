@@ -34,5 +34,4 @@ export const deleteFile = (fileName: string) => {
         throw new Error(`Error deleting file: ${fileName}`);
     }
 
-
 }

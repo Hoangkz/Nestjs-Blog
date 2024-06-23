@@ -74,10 +74,7 @@ export class CategoriesController {
         return this.categoriesService.updateCategory(id, category);
     }
 
-    @Delete(':id')
-    Delete(@Param('id') id: number): Promise<void> {
-        return this.categoriesService.deleteCategory(id);
-    }
+    
     @Get(':id')
     findOne(@Param('id') id: number): Promise<Category> {
         return this.categoriesService.findCategoryById(id);

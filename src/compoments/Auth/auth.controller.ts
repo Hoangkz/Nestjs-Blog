@@ -22,7 +22,6 @@ export class AuthController {
     }
     @Post('refresh-token')
     refreshToken(@Body() { refreshtoken }): Promise<any> {
-        console.log('refresh token api')
         return this.authService.refreshToken(refreshtoken);
     }
 }
