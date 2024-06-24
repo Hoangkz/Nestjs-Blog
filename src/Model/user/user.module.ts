@@ -9,12 +9,14 @@ import { MailerModule } from '@nestjs-modules/mailer';
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
-    ConfigModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     MailerModule.forRoot({
       transport: {
-        host: 'smtp.example.com',
-        port: 587,
-        secure: false,
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
         auth: {
           user: process.env.EMAIL_SV,
           pass: process.env.PASSWORD_SV,

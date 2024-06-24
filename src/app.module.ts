@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './Model/user/user.module';
 import { ItemsModule } from './model/items/items.module';
@@ -12,6 +12,8 @@ import { Item } from './model/items/Entity/Items.entity';
 import { User } from './Model/user/Entity/user.entity';
 import { Category } from './Model/category/Entity/Category.entity';
 import { JwtModule } from '@nestjs/jwt';
+import { LoggerMiddleware } from './logger/logger.middleware';
+import { AuthService } from './compoments/auth/auth.service';
 
 @Module({
   imports: [
