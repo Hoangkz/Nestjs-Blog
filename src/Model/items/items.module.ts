@@ -1,11 +1,10 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ItemsController } from './items.controller';
 import { Item } from './Entity/Items.entity';
 import { ItemsService } from './items.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { CategoriesModule } from '../category/categories.module';
-import { LoggerMiddleware } from 'src/logger/logger.middleware';
 
 @Module({
   imports: [
