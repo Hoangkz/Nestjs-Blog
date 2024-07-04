@@ -4,25 +4,25 @@ import { Request, Response, NextFunction } from 'express';
 
 @Injectable()
 export class ExtractTokenMiddleware implements NestMiddleware {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(private readonly jwtService: JwtService) { }
 
   use(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers['authorization'];
-    if(!authHeader){
+    if (!authHeader) {
       return res.status(403).json({ message: 'You do not have access' });
     }
-    const [type,token] = authHeader.split(" ")
+    const [type, token] = authHeader.split(" ")
     if (token && type === 'Bearer') {
       const user = this.jwtService.verify(token)
-      if(user && user.id){
+      if (user && user.id) {
         req['user'] = user;
         return next()
       }
-      else{
+      else {
         return res.status(403).json({ message: 'You do not have access' });
       }
     }
-    else{
+    else {
       return res.status(403).json({ message: 'You do not have access' });
     }
   }
