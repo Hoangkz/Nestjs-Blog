@@ -117,6 +117,7 @@ export class UserService {
         try {
             await this.sendEmail(email, "password", "test email")
         } catch (error) {
+            console.log(error)
             throw new HttpException({ message: "Server error!" }, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

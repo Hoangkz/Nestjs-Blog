@@ -71,7 +71,7 @@ export class AuthService {
         return this.generateToken(userrest)
     }
 
-    private async generateToken(payload: { id: number, email: string, lastname: string, firstname: string }) {
+    private async generateToken(payload: any) {
         const accesstoken = await this.jwtService.signAsync(payload, {
             expiresIn: process.env.EXP_IN_ACCESS_TOKEN
         });
@@ -88,19 +88,24 @@ export class AuthService {
 
 
 
-    async refreshToken(refreshtoken: string): Promise<any> {
+    async refreshToken(id: number): Promise<any> {
         try {
-            const verify = await this.jwtService.verifyAsync(refreshtoken, {
-                secret: process.env.SECRET
-            })
-            const checkExistToken = await this.usersRepository.findOneBy({ email: verify.email, refreshtoken: refreshtoken })
+            console.log(id)
+            const user = await this.usersService.findOne(id)
+            const checkExistToken = await this.jwtService.verifyAsync(user.refreshtoken)
             if (!checkExistToken) {
-                throw new HttpException({ messages: 'Refresh token is not valid' }, HttpStatus.BAD_REQUEST);
+                throw new HttpException({ message: 'Your session has expired, please log in again' }, HttpStatus.BAD_REQUEST);
             }
-            return this.generateToken({ id: verify.id, email: verify.email, lastname: verify.lastname, firstname: verify.firstname })
+            const { password, refreshtoken, accesstoken, ...rest } = user
+            const newtoken = await this.jwtService.signAsync(rest, {
+                expiresIn: process.env.EXP_IN_ACCESS_TOKEN
+            });
+            return {
+                token: newtoken
+            }
 
         } catch (error) {
-            throw new HttpException({ messages: 'Refresh token is not valid' }, HttpStatus.BAD_REQUEST);
+            throw new HttpException({ message: 'Your session has expired, please log in again' }, HttpStatus.BAD_REQUEST);
         }
     }
 

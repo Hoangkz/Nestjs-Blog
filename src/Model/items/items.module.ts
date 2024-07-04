@@ -1,11 +1,10 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ItemsController } from './items.controller';
 import { Item } from './Entity/Items.entity';
 import { ItemsService } from './items.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { CategoriesModule } from '../category/categories.module';
-import { ExtractTokenMiddleware } from 'src/logger/logger.middleware';
 
 @Module({
   imports: [
@@ -16,8 +15,4 @@ import { ExtractTokenMiddleware } from 'src/logger/logger.middleware';
   providers: [ItemsService],
   controllers: [ItemsController]
 })
-export class ItemsModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(ExtractTokenMiddleware).forRoutes('auth/*');
-  }
-}
+export class ItemsModule { }
