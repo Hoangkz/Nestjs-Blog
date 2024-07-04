@@ -1,8 +1,10 @@
 import { Controller, Get, Post, Delete, Param, Body, Put, Query, UsePipes, ValidationPipe, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './Entity/user.entity';
-import { ApiBody } from '@nestjs/swagger';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { CreateUserModel } from './Model/CreateUserModel';
 
+@ApiTags('ms-user')
 @Controller('users')
 export class UserController {
     constructor(private readonly userService: UserService) { }
@@ -12,9 +14,7 @@ export class UserController {
         return this.userService.search(page, query);
     }
     @Delete('many')
-    @ApiBody({
-        type: CreateTaskModel
-    })
+
     @UsePipes(new ValidationPipe({ transform: true }))
     async deleteMany(@Body() deleteMany: any): Promise<any> {
         const listId = deleteMany?.data?.listid
@@ -39,6 +39,9 @@ export class UserController {
     }
 
     @Post()
+    @ApiBody({
+        type: CreateUserModel
+    })
     create(@Body() user: User): Promise<User> {
 
         if (user.password.length < 6) {
