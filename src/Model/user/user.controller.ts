@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Delete, Param, Body, Put, Query, UsePipes, ValidationPipe, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './Entity/user.entity';
+import { ApiBody } from '@nestjs/swagger';
 
 @Controller('users')
 export class UserController {
@@ -11,6 +12,9 @@ export class UserController {
         return this.userService.search(page, query);
     }
     @Delete('many')
+    @ApiBody({
+        type: CreateTaskModel
+    })
     @UsePipes(new ValidationPipe({ transform: true }))
     async deleteMany(@Body() deleteMany: any): Promise<any> {
         const listId = deleteMany?.data?.listid
