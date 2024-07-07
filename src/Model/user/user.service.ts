@@ -47,6 +47,9 @@ export class UserService {
     }
 
     async create(userData: User): Promise<User> {
+        //từ email gửi lên, tìm trong db có email đó hay không, nếu có gửi lỗi về, lỗi 400
+        //kiểm tra mật khẩu, mật khẩu phải ít nhất 5 ký tự
+        //trước khi lưu cần mã hoá mật khẩu
         const user = this.usersRepository.create(userData);
         return await this.usersRepository.save(user);
     }

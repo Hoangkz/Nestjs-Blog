@@ -72,6 +72,8 @@ export class AuthService {
     }
 
     private async generateToken(payload: any) {
+
+        //mã hoá
         const accesstoken = await this.jwtService.signAsync(payload, {
             expiresIn: process.env.EXP_IN_ACCESS_TOKEN
         });
@@ -92,7 +94,10 @@ export class AuthService {
         try {
             console.log(id)
             const user = await this.usersService.findOne(id)
+            //giải mã
             const checkExistToken = await this.jwtService.verifyAsync(user.refreshtoken)
+
+            //cách refresh Token
             if (!checkExistToken) {
                 throw new HttpException({ message: 'Your session has expired, please log in again' }, HttpStatus.BAD_REQUEST);
             }
@@ -108,5 +113,5 @@ export class AuthService {
             throw new HttpException({ message: 'Your session has expired, please log in again' }, HttpStatus.BAD_REQUEST);
         }
     }
-
+    //token
 }

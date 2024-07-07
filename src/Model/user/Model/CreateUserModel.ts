@@ -3,7 +3,6 @@ import {
     IsString,
 } from 'class-validator';
 
-
 export class CreateUserModel {
     @ApiProperty({ description: 'First name' })
     firstname: string;
